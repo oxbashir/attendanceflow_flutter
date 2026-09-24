@@ -332,11 +332,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           _IconButton(
             palette: p,
             active: isEditMode,
+            lit: true,
             onTap: () => setState(() => isEditMode = !isEditMode),
             child: Icon(
               isEditMode ? Icons.edit_rounded : Icons.edit_outlined,
               size: 16,
-              color: isEditMode ? p.accent : p.textMid,
+              color: isEditMode ? Colors.white : p.textMid,
             ),
           ),
         ],
@@ -457,9 +458,37 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           } else if (isToday) {
             bgColor = p.accentSoft;
             cellBorder = Border.all(color: p.accent, width: 1.5);
+          } else if (isEditMode) {
+            // Edit mode: every editable day lights up so it reads as a target.
+            bgColor = Color.lerp(_unmarkedFill(date, p), p.accentSoft, 0.55)!;
+            cellBorder = Border.all(
+              color: p.accent.withValues(alpha: 0.6),
+              width: 1.5,
+            );
           } else {
             bgColor = _unmarkedFill(date, p);
             cellBorder = Border.all(color: p.border, width: 1.5);
+          }
+
+          final List<BoxShadow>? glow;
+          if (marked) {
+            glow = [
+              BoxShadow(
+                color: fill.withValues(alpha: isEditMode ? 0.45 : 0.28),
+                blurRadius: isEditMode ? 10 : 8,
+                offset: const Offset(0, 2),
+              ),
+            ];
+          } else if (isToday || isEditMode) {
+            glow = [
+              BoxShadow(
+                color: p.accent.withValues(alpha: isToday ? 0.18 : 0.14),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ];
+          } else {
+            glow = null;
           }
 
           return GestureDetector(
@@ -471,23 +500,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 color: bgColor,
                 borderRadius: BorderRadius.circular(10),
                 border: cellBorder,
-                boxShadow: marked
-                    ? [
-                        BoxShadow(
-                          color: fill.withValues(alpha: 0.28),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        )
-                      ]
-                    : isToday
-                        ? [
-                            BoxShadow(
-                              color: p.accent.withValues(alpha: 0.18),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            )
-                          ]
-                        : null,
+                boxShadow: glow,
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(9),
@@ -636,15 +649,20 @@ class _IconButton extends StatelessWidget {
   final VoidCallback onTap;
   final Widget child;
 
+  /// When true, the active state fills with the accent color and glows.
+  final bool lit;
+
   const _IconButton({
     required this.palette,
     required this.active,
     required this.onTap,
     required this.child,
+    this.lit = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final glow = active && lit;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -652,8 +670,21 @@ class _IconButton extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: active ? palette.accentSoft : palette.surfaceAlt,
+          color: glow
+              ? palette.accent
+              : active
+                  ? palette.accentSoft
+                  : palette.surfaceAlt,
           borderRadius: BorderRadius.circular(10),
+          boxShadow: glow
+              ? [
+                  BoxShadow(
+                    color: palette.accent.withValues(alpha: 0.45),
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
         ),
         child: Center(child: child),
       ),
