@@ -42,3 +42,6 @@ app.*.map.json
 
 # Regenerated Play Console native symbols
 store-assets/native-debug-symbols.zip
+
+# Golden test diff output
+test/failures/

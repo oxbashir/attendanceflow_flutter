@@ -1,7 +1,7 @@
 name: attendance_flow
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.2.6+12
+version: 1.2.7+13
 
 environment:
   sdk: ^3.6.0

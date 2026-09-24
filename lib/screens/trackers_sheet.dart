@@ -29,7 +29,8 @@ class _TrackersSheet extends StatelessWidget {
       await showProPaywall(
         context,
         pro: pro,
-        reason: 'A second calendar is a Pro feature — Work, Gym, Class, and more.',
+        reason:
+            'A second calendar is a Pro feature — Work, Gym, Class, and more.',
       );
       if (!pro.isPro) return;
     }
@@ -40,7 +41,8 @@ class _TrackersSheet extends StatelessWidget {
   }
 
   Future<void> _rename(BuildContext context, String id, String current) async {
-    final name = await promptTrackerName(context, title: 'Rename', initial: current);
+    final name =
+        await promptTrackerName(context, title: 'Rename', initial: current);
     if (name == null) return;
     await store.renameTracker(id, name);
   }
@@ -65,7 +67,13 @@ class _TrackersSheet extends StatelessWidget {
           decoration: BoxDecoration(
             color: p.surface,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: p.border),
+            boxShadow: [
+              BoxShadow(
+                color: p.shadow,
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -94,7 +102,9 @@ class _TrackersSheet extends StatelessWidget {
                     TextButton.icon(
                       onPressed: () => _add(context),
                       icon: Icon(
-                        pro.isPro ? Icons.add_rounded : Icons.lock_outline_rounded,
+                        pro.isPro
+                            ? Icons.add_rounded
+                            : Icons.lock_outline_rounded,
                         size: 18,
                       ),
                       label: const Text('Add'),
@@ -135,13 +145,15 @@ class _TrackersSheet extends StatelessWidget {
                             IconButton(
                               tooltip: 'Rename',
                               onPressed: () => _rename(context, t.id, t.name),
-                              icon: Icon(Icons.edit_outlined, color: p.textMid, size: 18),
+                              icon: Icon(Icons.edit_outlined,
+                                  color: p.textMid, size: 18),
                             ),
                             if (store.trackers.length > 1)
                               IconButton(
                                 tooltip: 'Delete',
                                 onPressed: () => store.deleteTracker(t.id),
-                                icon: Icon(Icons.delete_outline, color: p.danger, size: 18),
+                                icon: Icon(Icons.delete_outline,
+                                    color: p.danger, size: 18),
                               ),
                           ],
                         ),
@@ -154,7 +166,8 @@ class _TrackersSheet extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                   child: Text(
                     'Free includes one calendar. Subscribe to Pro to add Work, Gym, Class, and more.',
-                    style: TextStyle(fontSize: 12, color: p.textMid, height: 1.35),
+                    style:
+                        TextStyle(fontSize: 12, color: p.textMid, height: 1.35),
                   ),
                 ),
             ],

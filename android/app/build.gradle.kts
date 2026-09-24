@@ -62,3 +62,8 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // File picker / share sheets reference AppCompat dialog layouts.
+    implementation("androidx.appcompat:appcompat:1.7.1")
+}

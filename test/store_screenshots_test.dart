@@ -20,7 +20,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
   }
 
-const screenshotKey = Key('play_store_screenshot');
+  const screenshotKey = Key('play_store_screenshot');
 
   Future<void> pumpHomeScreen(WidgetTester tester) async {
     await configurePhoneSurface(tester);
@@ -103,7 +103,7 @@ const screenshotKey = Key('play_store_screenshot');
 
     testWidgets('phone_04_next_month', (tester) async {
       await pumpHomeScreen(tester);
-      await tester.tap(find.byIcon(Icons.chevron_right_rounded));
+      await tester.tap(find.byKey(const Key('next_month')));
       await tester.pumpAndSettle();
       await expectLater(
         find.byKey(screenshotKey),

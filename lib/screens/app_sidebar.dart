@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../services/app_update_service.dart';
 import '../services/attendance_store.dart';
 import '../services/pro_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_controller.dart';
+import 'export_sheet.dart';
 import 'paywall_sheet.dart';
 import 'trackers_sheet.dart';
 
@@ -54,23 +54,16 @@ class AppSidebar extends StatelessWidget {
       'Export a CSV of this calendar with Pro.',
     );
     if (!pro.isPro) return;
-    final csv = store.exportCsv();
+    if (!context.mounted) return;
     final safe = store.active.name.replaceAll(RegExp(r'[^\w]+'), '_');
-    try {
-      await Share.shareXFiles([
-        XFile.fromData(
-          utf8.encode(csv),
-          mimeType: 'text/csv',
-          name: '${safe}_attendance.csv',
-        ),
-      ]);
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not share that file.')),
-        );
-      }
-    }
+    await exportUserFile(
+      context,
+      title: 'Export CSV',
+      fileName: '${safe}_attendance.csv',
+      mimeType: 'text/csv',
+      bytes: utf8Bytes(store.exportCsv()),
+      allowedExtensions: const ['csv'],
+    );
   }
 
   Future<void> _backup(BuildContext context) async {
@@ -79,21 +72,15 @@ class AppSidebar extends StatelessWidget {
       'Save a backup file of every calendar. Uninstall currently wipes history.',
     );
     if (!pro.isPro) return;
-    try {
-      await Share.shareXFiles([
-        XFile.fromData(
-          utf8.encode(store.exportBackupJson()),
-          mimeType: 'application/json',
-          name: 'attendance_flow_backup.json',
-        ),
-      ]);
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not share that file.')),
-        );
-      }
-    }
+    if (!context.mounted) return;
+    await exportUserFile(
+      context,
+      title: 'Save backup',
+      fileName: 'attendance_flow_backup.json',
+      mimeType: 'application/json',
+      bytes: utf8Bytes(store.exportBackupJson()),
+      allowedExtensions: const ['json'],
+    );
   }
 
   Future<void> _restore(BuildContext context) async {
@@ -247,13 +234,9 @@ class AppSidebar extends StatelessWidget {
                             child: InkWell(
                               onTap: onClose,
                               borderRadius: BorderRadius.circular(12),
-                              child: Container(
+                              child: SizedBox(
                                 width: 36,
                                 height: 36,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: p.border, width: 1.5),
-                                ),
                                 child: Icon(
                                   Icons.arrow_back_rounded,
                                   size: 18,
@@ -366,8 +349,7 @@ class AppSidebar extends StatelessWidget {
                             ? Icons.restart_alt_rounded
                             : Icons.system_update_alt_rounded,
                         label: updates.actionLabel,
-                        accent:
-                            updates.updateAvailable || updates.downloaded,
+                        accent: updates.updateAvailable || updates.downloaded,
                         onTap: () => _onAppUpdate(context),
                       ),
                     ],
@@ -429,20 +411,12 @@ class _CalendarTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
-        child: Container(
+        child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: selected ? palette.accent.withValues(alpha: 0.35) : palette.border,
-            ),
-          ),
           child: Row(
             children: [
               Icon(
-                selected
-                    ? Icons.check_circle_rounded
-                    : Icons.circle_outlined,
+                selected ? Icons.check_circle_rounded : Icons.circle_outlined,
                 size: 18,
                 color: selected ? palette.accent : palette.textLow,
               ),
@@ -470,23 +444,100 @@ class _CalendarTile extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                tooltip: 'Rename',
-                onPressed: onRename,
-                icon: Icon(Icons.edit_outlined, size: 16, color: palette.textMid),
+              _TileMenu(
+                palette: palette,
+                onRename: onRename,
+                onDelete: onDelete,
               ),
-              if (onDelete != null)
-                IconButton(
-                  visualDensity: VisualDensity.compact,
-                  tooltip: 'Delete',
-                  onPressed: onDelete,
-                  icon: Icon(Icons.delete_outline, size: 16, color: palette.danger),
-                ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+enum _TileAction { rename, delete }
+
+class _TileMenu extends StatelessWidget {
+  const _TileMenu({
+    required this.palette,
+    required this.onRename,
+    this.onDelete,
+  });
+
+  final AppPalette palette;
+  final VoidCallback onRename;
+  final VoidCallback? onDelete;
+
+  PopupMenuItem<_TileAction> _item({
+    required _TileAction value,
+    required IconData icon,
+    required String label,
+    Color? color,
+  }) {
+    final ink = color ?? palette.textHigh;
+    return PopupMenuItem<_TileAction>(
+      value: value,
+      height: 36,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: ink),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: ink,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<_TileAction>(
+      tooltip: 'More',
+      padding: EdgeInsets.zero,
+      splashRadius: 18,
+      position: PopupMenuPosition.under,
+      color: palette.surface,
+      elevation: 6,
+      shadowColor: palette.shadow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: palette.border),
+      ),
+      menuPadding: const EdgeInsets.symmetric(vertical: 4),
+      constraints: const BoxConstraints(minWidth: 120),
+      icon: Icon(Icons.more_vert_rounded, size: 18, color: palette.textMid),
+      onSelected: (action) {
+        switch (action) {
+          case _TileAction.rename:
+            onRename();
+          case _TileAction.delete:
+            onDelete?.call();
+        }
+      },
+      itemBuilder: (context) => [
+        _item(
+          value: _TileAction.rename,
+          icon: Icons.edit_outlined,
+          label: 'Rename',
+        ),
+        if (onDelete != null)
+          _item(
+            value: _TileAction.delete,
+            icon: Icons.delete_outline,
+            label: 'Delete',
+            color: palette.danger,
+          ),
+      ],
     );
   }
 }
@@ -512,8 +563,8 @@ class _AddRow extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
+            color: palette.accentSoft,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: palette.border),
           ),
           child: Row(
             children: [
@@ -558,7 +609,6 @@ class _ThemeSwitch extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.surfaceAlt,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: palette.border),
       ),
       child: Row(
         children: [
@@ -611,7 +661,6 @@ class _ThemeChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? palette.surface : Colors.transparent,
           borderRadius: BorderRadius.circular(11),
-          border: selected ? Border.all(color: palette.border) : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -688,7 +737,9 @@ class _ActionRow extends StatelessWidget {
                   ),
                 ),
                 Icon(
-                  locked ? Icons.lock_outline_rounded : Icons.chevron_right_rounded,
+                  locked
+                      ? Icons.lock_outline_rounded
+                      : Icons.chevron_right_rounded,
                   size: 16,
                   color: palette.textLow,
                 ),

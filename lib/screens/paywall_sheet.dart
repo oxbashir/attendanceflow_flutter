@@ -45,7 +45,13 @@ class _PaywallSheet extends StatelessWidget {
           decoration: BoxDecoration(
             color: p.surface,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: p.border),
+            boxShadow: [
+              BoxShadow(
+                color: p.shadow,
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -106,9 +112,14 @@ class _PaywallSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              _Line(text: 'Unlimited named calendars', palette: p, accent: true),
-              _Line(text: 'Late, excused, sick, half-day', palette: p, accent: true),
-              _Line(text: 'CSV export and file backup', palette: p, accent: true),
+              _Line(
+                  text: 'Unlimited named calendars', palette: p, accent: true),
+              _Line(
+                  text: 'Late, excused, sick, half-day',
+                  palette: p,
+                  accent: true),
+              _Line(
+                  text: 'CSV export and file backup', palette: p, accent: true),
               if (pro.lastError != null) ...[
                 const SizedBox(height: 12),
                 Text(

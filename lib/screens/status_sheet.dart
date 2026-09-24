@@ -56,7 +56,13 @@ class _StatusSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: p.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: p.border),
+        boxShadow: [
+          BoxShadow(
+            color: p.shadow,
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

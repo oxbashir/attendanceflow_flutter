@@ -123,7 +123,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final offset = firstDay.weekday - 1;
     return [
       ...List.filled(offset, null),
-      ...List.generate(totalDays, (i) => DateTime(month.year, month.month, i + 1)),
+      ...List.generate(
+          totalDays, (i) => DateTime(month.year, month.month, i + 1)),
     ];
   }
 
@@ -152,23 +153,31 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         date.day == now.day;
   }
 
-  void _nextMonth() =>
-      setState(() => selectedMonth = DateTime(selectedMonth.year, selectedMonth.month + 1));
+  void _nextMonth() => setState(() =>
+      selectedMonth = DateTime(selectedMonth.year, selectedMonth.month + 1));
 
   void _prevMonth() {
     final prev = DateTime(selectedMonth.year, selectedMonth.month - 1);
     final start = store.active.startMonth;
-    if (start != null &&
-        prev.isBefore(DateTime(start.year, start.month))) {
+    if (start != null && prev.isBefore(DateTime(start.year, start.month))) {
       return;
     }
     setState(() => selectedMonth = prev);
   }
 
   String _monthName(int m) => const [
-        "January", "February", "March", "April",
-        "May", "June", "July", "August",
-        "September", "October", "November", "December"
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
       ][m - 1];
 
   int get _totalDays =>
@@ -299,7 +308,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       ),
       decoration: BoxDecoration(
         color: p.surface,
-        border: Border(bottom: BorderSide(color: p.border, width: 1)),
+        boxShadow: [
+          BoxShadow(
+            color: p.shadow,
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -334,7 +349,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       padding: const EdgeInsets.fromLTRB(18, 22, 18, 10),
       child: Row(
         children: [
-          _NavButton(onTap: _prevMonth, icon: Icons.chevron_left_rounded, palette: p),
+          _NavButton(
+            key: const Key('prev_month'),
+            onTap: _prevMonth,
+            icon: Icons.chevron_left_rounded,
+            palette: p,
+          ),
           const Spacer(),
           Column(
             children: [
@@ -359,10 +379,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ],
           ),
           const Spacer(),
-          _NavButton(onTap: _nextMonth, icon: Icons.chevron_right_rounded, palette: p),
+          _NavButton(
+            key: const Key('next_month'),
+            onTap: _nextMonth,
+            icon: Icons.chevron_right_rounded,
+            palette: p,
+          ),
         ],
       ),
     );
+  }
+
+  Color _unmarkedFill(DateTime date, AppPalette p) {
+    final weekend =
+        date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+    if (weekend) {
+      return Color.lerp(p.surfaceAlt, p.accentSoft, 0.42)!;
+    }
+    return p.surfaceAlt;
   }
 
   Widget _buildWeekdayHeader(AppPalette p) {
@@ -370,19 +404,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         children: _weekDays
-            .map((d) => Expanded(
-                  child: Center(
-                    child: Text(
-                      d,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: p.textMid,
-                        letterSpacing: 0.8,
-                      ),
+            .map(
+              (d) => Expanded(
+                child: Center(
+                  child: Text(
+                    d,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: p.textMid,
+                      letterSpacing: 0.8,
                     ),
                   ),
-                ))
+                ),
+              ),
+            )
             .toList(),
       ),
     );
@@ -413,7 +449,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           Color bgColor;
           Border cellBorder;
           if (status == AttendanceStatus.halfDay) {
-            bgColor = p.surfaceAlt;
+            bgColor = _unmarkedFill(date, p);
             cellBorder = Border.all(color: p.halfDay, width: 1.5);
           } else if (marked) {
             bgColor = fill;
@@ -422,7 +458,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             bgColor = p.accentSoft;
             cellBorder = Border.all(color: p.accent, width: 1.5);
           } else {
-            bgColor = p.surfaceAlt;
+            bgColor = _unmarkedFill(date, p);
             cellBorder = Border.all(color: p.border, width: 1.5);
           }
 
@@ -460,7 +496,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     if (status == AttendanceStatus.halfDay)
                       Row(
                         children: [
-                          Expanded(child: Container(color: p.success)),
+                          Expanded(child: ColoredBox(color: p.success)),
                           const Expanded(child: SizedBox()),
                         ],
                       ),
@@ -471,7 +507,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           painter: _CheckPainter(color: Colors.white),
                         ),
                       )
-                    else if (status != null && status != AttendanceStatus.halfDay)
+                    else if (status != null &&
+                        status != AttendanceStatus.halfDay)
                       Center(
                         child: Text(
                           status.shortLabel,
@@ -486,7 +523,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       bottom: 5,
                       right: 6,
                       child: Text(
-                        "${date.day}",
+                        '${date.day}',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -516,7 +553,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       decoration: BoxDecoration(
         color: p.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: p.border, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: p.shadow,
@@ -557,9 +593,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: p.surfaceAlt,
+              color: p.accentSoft,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: p.border, width: 1.5),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -619,9 +654,6 @@ class _IconButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: active ? palette.accentSoft : palette.surfaceAlt,
           borderRadius: BorderRadius.circular(10),
-          border: active
-              ? Border.all(color: palette.accent.withValues(alpha: 0.4), width: 1.5)
-              : Border.all(color: palette.border),
         ),
         child: Center(child: child),
       ),
@@ -634,6 +666,7 @@ class _NavButton extends StatelessWidget {
   final IconData icon;
   final AppPalette palette;
   const _NavButton({
+    super.key,
     required this.onTap,
     required this.icon,
     required this.palette,
@@ -649,7 +682,6 @@ class _NavButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: palette.surface,
           borderRadius: BorderRadius.circular(11),
-          border: Border.all(color: palette.border),
           boxShadow: [
             BoxShadow(
               color: palette.shadow,
@@ -725,10 +757,6 @@ class _UpdateBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.accentSoft,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: palette.accent.withValues(alpha: 0.45),
-          width: 1.5,
-        ),
       ),
       child: Row(
         children: [

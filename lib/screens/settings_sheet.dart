@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../services/app_update_service.dart';
 import '../services/attendance_store.dart';
 import '../services/pro_service.dart';
 import '../theme/app_theme.dart';
+import 'export_sheet.dart';
 import 'paywall_sheet.dart';
 import 'trackers_sheet.dart';
 
@@ -41,23 +41,16 @@ class _SettingsSheet extends StatelessWidget {
       'Export a CSV of this calendar with Pro.',
     );
     if (!pro.isPro) return;
-    final csv = store.exportCsv();
+    if (!context.mounted) return;
     final safe = store.active.name.replaceAll(RegExp(r'[^\w]+'), '_');
-    try {
-      await Share.shareXFiles([
-        XFile.fromData(
-          utf8.encode(csv),
-          mimeType: 'text/csv',
-          name: '${safe}_attendance.csv',
-        ),
-      ]);
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not share that file.')),
-        );
-      }
-    }
+    await exportUserFile(
+      context,
+      title: 'Export CSV',
+      fileName: '${safe}_attendance.csv',
+      mimeType: 'text/csv',
+      bytes: utf8Bytes(store.exportCsv()),
+      allowedExtensions: const ['csv'],
+    );
   }
 
   Future<void> _backup(BuildContext context) async {
@@ -66,22 +59,15 @@ class _SettingsSheet extends StatelessWidget {
       'Save a backup file of every calendar. Uninstall currently wipes history.',
     );
     if (!pro.isPro) return;
-    final json = store.exportBackupJson();
-    try {
-      await Share.shareXFiles([
-        XFile.fromData(
-          utf8.encode(json),
-          mimeType: 'application/json',
-          name: 'attendance_flow_backup.json',
-        ),
-      ]);
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not share that file.')),
-        );
-      }
-    }
+    if (!context.mounted) return;
+    await exportUserFile(
+      context,
+      title: 'Save backup',
+      fileName: 'attendance_flow_backup.json',
+      mimeType: 'application/json',
+      bytes: utf8Bytes(store.exportBackupJson()),
+      allowedExtensions: const ['json'],
+    );
   }
 
   Future<void> _restore(BuildContext context) async {
@@ -172,7 +158,13 @@ class _SettingsSheet extends StatelessWidget {
           decoration: BoxDecoration(
             color: p.surface,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: p.border),
+            boxShadow: [
+              BoxShadow(
+                color: p.shadow,
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
