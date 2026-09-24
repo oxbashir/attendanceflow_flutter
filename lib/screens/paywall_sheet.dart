@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
 import '../services/pro_service.dart';
 import '../theme/app_theme.dart';
 
@@ -17,23 +18,64 @@ Future<bool> showProPaywall(
   return unlocked == true || pro.isPro;
 }
 
-class _PaywallSheet extends StatelessWidget {
+class _PaywallSheet extends StatefulWidget {
   const _PaywallSheet({required this.pro, required this.reason});
 
   final ProService pro;
   final String reason;
 
   @override
+  State<_PaywallSheet> createState() => _PaywallSheetState();
+}
+
+class _PaywallSheetState extends State<_PaywallSheet> {
+  ProService get pro => widget.pro;
+  bool _checkingAccount = false;
+  String? _signInError;
+
+  Future<void> _upgrade(AuthService? auth) async {
+    setState(() {
+      _signInError = null;
+      _checkingAccount = true;
+    });
+    if (pro.requiresSignIn && auth != null) {
+      final err = await auth.signInWithGoogle();
+      if (err == null) {
+        await pro.refreshEntitlement();
+      }
+      if (!mounted) return;
+      if (err != null) {
+        setState(() {
+          _checkingAccount = false;
+          _signInError = err == AuthService.cancelledMessage ? null : err;
+        });
+        return;
+      }
+      if (pro.isPro) {
+        setState(() => _checkingAccount = false);
+        return;
+      }
+    }
+    if (!mounted) return;
+    setState(() => _checkingAccount = false);
+    await pro.buy();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final p = AppPalette.of(context);
+    final auth = AuthScope.maybeOf(context);
     return ListenableBuilder(
-      listenable: pro,
+      listenable: auth == null ? pro : Listenable.merge([pro, auth]),
       builder: (context, _) {
         if (pro.isPro) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (context.mounted) Navigator.of(context).pop(true);
           });
         }
+        final busy =
+            pro.purchasePending || _checkingAccount || (auth?.busy ?? false);
+        final reason = widget.reason;
         return Container(
           margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
           padding: EdgeInsets.fromLTRB(
@@ -69,7 +111,7 @@ class _PaywallSheet extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               Text(
-                'Unlock Pro',
+                'Upgrade to Pro',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -120,10 +162,16 @@ class _PaywallSheet extends StatelessWidget {
                   accent: true),
               _Line(
                   text: 'CSV export and file backup', palette: p, accent: true),
-              if (pro.lastError != null) ...[
+              if (auth != null && auth.enabled)
+                _Line(
+                  text: 'Calendars backed up to your Google account',
+                  palette: p,
+                  accent: true,
+                ),
+              if ((_signInError ?? pro.lastError) != null) ...[
                 const SizedBox(height: 12),
                 Text(
-                  pro.lastError!,
+                  _signInError ?? pro.lastError!,
                   style: TextStyle(fontSize: 12, color: p.danger, height: 1.3),
                 ),
               ],
@@ -132,7 +180,7 @@ class _PaywallSheet extends StatelessWidget {
                 width: double.infinity,
                 height: 48,
                 child: FilledButton(
-                  onPressed: pro.purchasePending ? null : () => pro.buy(),
+                  onPressed: busy ? null : () => _upgrade(auth),
                   style: FilledButton.styleFrom(
                     backgroundColor: p.accent,
                     foregroundColor: Colors.white,
@@ -140,7 +188,7 @@ class _PaywallSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: pro.purchasePending
+                  child: busy
                       ? const SizedBox(
                           width: 18,
                           height: 18,
@@ -163,7 +211,7 @@ class _PaywallSheet extends StatelessWidget {
               const SizedBox(height: 8),
               Center(
                 child: TextButton(
-                  onPressed: pro.purchasePending ? null : () => pro.restore(),
+                  onPressed: busy ? null : () => pro.restore(),
                   child: Text(
                     'Restore purchases',
                     style: TextStyle(

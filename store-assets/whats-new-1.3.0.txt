@@ -1,0 +1,11 @@
+Play Console → Release → Production (or testing) → Release notes
+
+en-US
+-----
+Pro now follows you. Sign in with Google when you upgrade so your calendars back up and Pro restores if you change phones. Settings moved out of the sidebar — calendars stay up front, files, appearance, and account live in one place. Tighter calendar grid, cleaner add-calendar control, and a gold Pro upgrade card.
+
+What’s new
+• Google account for Pro: sign-in, backup, restore, manage or delete
+• Settings screen (theme, export, backup, updates)
+• Slimmer sidebar: calendars + Upgrade to Pro + Settings
+• Tighter day cells and matching calendar-tile borders

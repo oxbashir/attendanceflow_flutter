@@ -113,10 +113,18 @@ class AttendanceStore extends ChangeNotifier {
     save();
   }
 
+  /// Ids of calendars deleted locally since the last cloud sync. The sync
+  /// layer drains this so the deletion propagates instead of being undone by
+  /// the next pull.
+  final Set<String> pendingDeletes = {};
+
   Future<bool> addTracker(String name, {required bool isPro}) async {
     if (!isPro && trackers.isNotEmpty) return false;
     final id = DateTime.now().microsecondsSinceEpoch.toString();
-    trackers.add(Tracker(id: id, name: name.trim().isEmpty ? 'Calendar' : name.trim()));
+    trackers.add(
+      Tracker(id: id, name: name.trim().isEmpty ? 'Calendar' : name.trim())
+        ..touch(),
+    );
     activeId = id;
     notifyListeners();
     await save();
@@ -127,7 +135,10 @@ class AttendanceStore extends ChangeNotifier {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return;
     for (final t in trackers) {
-      if (t.id == id) t.name = trimmed;
+      if (t.id == id) {
+        t.name = trimmed;
+        t.touch();
+      }
     }
     notifyListeners();
     await save();
@@ -136,7 +147,24 @@ class AttendanceStore extends ChangeNotifier {
   Future<void> deleteTracker(String id) async {
     if (trackers.length <= 1) return;
     trackers.removeWhere((t) => t.id == id);
+    pendingDeletes.add(id);
     if (activeId == id) activeId = trackers.first.id;
+    notifyListeners();
+    await save();
+  }
+
+  /// Replaces the local calendars with the outcome of a cloud merge.
+  /// Does not touch [pendingDeletes]; the caller owns that lifecycle.
+  Future<void> applyMerged(List<Tracker> merged,
+      {String? preferredActive}) async {
+    trackers
+      ..clear()
+      ..addAll(merged);
+    if (preferredActive != null &&
+        trackers.any((t) => t.id == preferredActive)) {
+      activeId = preferredActive;
+    }
+    _ensureDefault();
     notifyListeners();
     await save();
   }
@@ -155,6 +183,7 @@ class AttendanceStore extends ChangeNotifier {
     } else {
       tracker.days.remove(key);
     }
+    tracker.touch();
     notifyListeners();
     await save();
   }
@@ -168,6 +197,7 @@ class AttendanceStore extends ChangeNotifier {
     } else {
       tracker.days[key] = status;
     }
+    tracker.touch();
     notifyListeners();
     await save();
   }
@@ -203,7 +233,9 @@ class AttendanceStore extends ChangeNotifier {
     }
     trackers
       ..clear()
-      ..addAll(list.map((e) => Tracker.fromJson(e as Map<String, dynamic>)));
+      ..addAll(
+        list.map((e) => Tracker.fromJson(e as Map<String, dynamic>)..touch()),
+      );
     activeId = decoded['activeTrackerId'] as String? ?? trackers.first.id;
     if (!trackers.any((t) => t.id == activeId)) {
       activeId = trackers.first.id;

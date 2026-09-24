@@ -1,0 +1,20 @@
+{
+  "name": "attendance-flow-functions",
+  "private": true,
+  "description": "Server-side Pro verification and account deletion for Attendance Flow",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.0",
+    "googleapis": "^144.0.0"
+  }
+}

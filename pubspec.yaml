@@ -1,7 +1,7 @@
 name: attendance_flow
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.2.8+14
+version: 1.3.0+15
 
 environment:
   sdk: ^3.6.0
@@ -19,6 +19,11 @@ dependencies:
   path_provider: ^2.1.5
   in_app_update: ^5.0.0
   url_launcher: ^6.3.2
+  firebase_core: ^4.15.0
+  firebase_auth: ^6.7.0
+  cloud_firestore: ^6.10.0
+  cloud_functions: ^6.5.0
+  google_sign_in: ^7.2.0
 
 dev_dependencies:
   flutter_test:

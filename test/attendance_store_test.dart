@@ -15,7 +15,8 @@ void main() {
     await store.load();
     expect(store.trackers, hasLength(1));
     expect(store.active.name, 'Attendance');
-    expect(store.active.statusOn(DateTime(2026, 8, 2)), AttendanceStatus.present);
+    expect(
+        store.active.statusOn(DateTime(2026, 8, 2)), AttendanceStatus.present);
     expect(store.active.startMonth, DateTime(2026, 8));
   });
 

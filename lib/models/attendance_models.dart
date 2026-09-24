@@ -48,12 +48,19 @@ class Tracker {
     required this.name,
     this.startMonth,
     Map<String, AttendanceStatus>? days,
+    this.updatedAt,
   }) : days = days ?? {};
 
   final String id;
   String name;
   DateTime? startMonth;
   final Map<String, AttendanceStatus> days;
+
+  /// Last local mutation, in UTC. Used to pick a winner when the same
+  /// calendar was edited on two devices.
+  DateTime? updatedAt;
+
+  void touch() => updatedAt = DateTime.now().toUtc();
 
   static String dayKey(DateTime d) => '${d.year}-${d.month}-${d.day}';
 
@@ -81,6 +88,7 @@ class Tracker {
             ? null
             : '${startMonth!.year}-${startMonth!.month}',
         'days': days.map((k, v) => MapEntry(k, v.storage)),
+        'updatedAt': updatedAt?.toUtc().toIso8601String(),
       };
 
   factory Tracker.fromJson(Map<String, dynamic> json) {
@@ -90,6 +98,9 @@ class Tracker {
       final p = sm.split('-');
       start = DateTime(int.parse(p[0]), int.parse(p[1]));
     }
+    DateTime? updated;
+    final rawUpdated = json['updatedAt'];
+    if (rawUpdated is String) updated = DateTime.tryParse(rawUpdated)?.toUtc();
     final rawDays = json['days'];
     final days = <String, AttendanceStatus>{};
     if (rawDays is Map) {
@@ -103,6 +114,7 @@ class Tracker {
       name: json['name'] as String? ?? 'Attendance',
       startMonth: start,
       days: days,
+      updatedAt: updated,
     );
   }
 }

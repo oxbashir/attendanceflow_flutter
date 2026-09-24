@@ -7,6 +7,7 @@ import '../models/attendance_models.dart';
 import '../services/app_update_service.dart';
 import '../services/attendance_store.dart';
 import '../services/pro_service.dart';
+import '../services/sync_service.dart';
 import '../theme/app_theme.dart';
 import 'app_sidebar.dart';
 import 'status_sheet.dart';
@@ -90,6 +91,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       unawaited(updates.refresh());
+      if (mounted) {
+        final sync = SyncScope.maybeOf(context);
+        if (sync != null) unawaited(sync.syncNow());
+      }
     }
   }
 
@@ -434,8 +439,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         itemCount: grid.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 7,
-          mainAxisSpacing: 6,
-          crossAxisSpacing: 6,
+          mainAxisSpacing: 4,
+          crossAxisSpacing: 4,
           childAspectRatio: 1,
         ),
         itemBuilder: (context, index) {
@@ -451,23 +456,23 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           Border cellBorder;
           if (status == AttendanceStatus.halfDay) {
             bgColor = _unmarkedFill(date, p);
-            cellBorder = Border.all(color: p.halfDay, width: 1.5);
+            cellBorder = Border.all(color: p.halfDay, width: 1);
           } else if (marked) {
             bgColor = fill;
             cellBorder = Border.all(color: fill, width: 1);
           } else if (isToday) {
             bgColor = p.accentSoft;
-            cellBorder = Border.all(color: p.accent, width: 1.5);
+            cellBorder = Border.all(color: p.accent, width: 1);
           } else if (isEditMode) {
             // Edit mode: every editable day lights up so it reads as a target.
             bgColor = Color.lerp(_unmarkedFill(date, p), p.accentSoft, 0.55)!;
             cellBorder = Border.all(
               color: p.accent.withValues(alpha: 0.6),
-              width: 1.5,
+              width: 1,
             );
           } else {
             bgColor = _unmarkedFill(date, p);
-            cellBorder = Border.all(color: p.border, width: 1.5);
+            cellBorder = Border.all(color: p.border, width: 1);
           }
 
           final List<BoxShadow>? glow;

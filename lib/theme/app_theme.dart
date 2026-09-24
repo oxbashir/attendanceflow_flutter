@@ -7,6 +7,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.surfaceAlt,
     required this.accent,
     required this.accentSoft,
+    required this.gold,
+    required this.goldSoft,
     required this.success,
     required this.warning,
     required this.danger,
@@ -23,6 +25,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color surfaceAlt;
   final Color accent;
   final Color accentSoft;
+  final Color gold;
+  final Color goldSoft;
   final Color success;
   final Color warning;
   final Color danger;
@@ -39,6 +43,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     surfaceAlt: Color(0xFFE7E4DC),
     accent: Color(0xFF4F7EFF),
     accentSoft: Color(0xFFDCE6FF),
+    gold: Color(0xFFC6A227),
+    goldSoft: Color(0xFFF3E6B8),
     success: Color(0xFF2FB56F),
     warning: Color(0xFFE8A017),
     danger: Color(0xFFE25B4C),
@@ -56,6 +62,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     surfaceAlt: Color(0xFF2A3144),
     accent: Color(0xFF7AA0FF),
     accentSoft: Color(0xFF2A3A62),
+    gold: Color(0xFFE4C04A),
+    goldSoft: Color(0xFF3A3116),
     success: Color(0xFF3DDB8F),
     warning: Color(0xFFFFC14D),
     danger: Color(0xFFFF7A6E),
@@ -78,6 +86,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? surfaceAlt,
     Color? accent,
     Color? accentSoft,
+    Color? gold,
+    Color? goldSoft,
     Color? success,
     Color? warning,
     Color? danger,
@@ -94,6 +104,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       surfaceAlt: surfaceAlt ?? this.surfaceAlt,
       accent: accent ?? this.accent,
       accentSoft: accentSoft ?? this.accentSoft,
+      gold: gold ?? this.gold,
+      goldSoft: goldSoft ?? this.goldSoft,
       success: success ?? this.success,
       warning: warning ?? this.warning,
       danger: danger ?? this.danger,
@@ -115,6 +127,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
       surfaceAlt: Color.lerp(surfaceAlt, other.surfaceAlt, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
       accentSoft: Color.lerp(accentSoft, other.accentSoft, t)!,
+      gold: Color.lerp(gold, other.gold, t)!,
+      goldSoft: Color.lerp(goldSoft, other.goldSoft, t)!,
       success: Color.lerp(success, other.success, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
       danger: Color.lerp(danger, other.danger, t)!,

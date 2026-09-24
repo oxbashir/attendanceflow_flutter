@@ -45,3 +45,10 @@ store-assets/native-debug-symbols.zip
 
 # Golden test diff output
 test/failures/
+
+# Firebase
+functions/node_modules/
+functions/*.log
+.firebase/
+firebase-debug.log
+android/app/google-services.json

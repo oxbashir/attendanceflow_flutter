@@ -107,10 +107,11 @@ class PlayAppUpdateGateway implements AppUpdateGateway {
         info.updateAvailability ==
             UpdateAvailability.developerTriggeredUpdateInProgress;
     return AppUpdateCheckResult(
-      available: info.updateAvailability == UpdateAvailability.updateAvailable ||
-          info.updateAvailability ==
-              UpdateAvailability.developerTriggeredUpdateInProgress ||
-          downloaded,
+      available:
+          info.updateAvailability == UpdateAvailability.updateAvailable ||
+              info.updateAvailability ==
+                  UpdateAvailability.developerTriggeredUpdateInProgress ||
+              downloaded,
       flexibleAllowed: info.flexibleUpdateAllowed,
       immediateAllowed: info.immediateUpdateAllowed,
       downloaded: downloaded,

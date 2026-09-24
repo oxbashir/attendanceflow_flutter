@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // The account document. Clients may read it and update their own
+    // preferences, but the `pro` entitlement is written only by Cloud Functions.
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && !('pro' in request.resource.data);
+      allow update: if isOwner(uid)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['pro']);
+      allow delete: if false;
+
+      // Calendars synced for Pro users.
+      match /trackers/{trackerId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // Purchase-token → account mapping is server-only.
+    match /purchaseTokens/{tokenId} {
+      allow read, write: if false;
+    }
+  }
+}
