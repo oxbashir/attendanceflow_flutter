@@ -2,6 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:attendance_flow/screens/HomeScreen.dart';
+import 'package:attendance_flow/services/app_update_service.dart';
+import 'package:attendance_flow/services/attendance_store.dart';
+import 'package:attendance_flow/services/pro_service.dart';
+import 'package:attendance_flow/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,14 +24,30 @@ const screenshotKey = Key('play_store_screenshot');
 
   Future<void> pumpHomeScreen(WidgetTester tester) async {
     await configurePhoneSurface(tester);
+    final store = AttendanceStore();
+    await store.load();
+    final pro = ProService(enableStore: false);
+    await pro.init();
+    final updates = AppUpdateService(enableStore: false);
+    await updates.init();
     await tester.pumpWidget(
       MaterialApp(
         debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
         home: SizedBox(
           key: screenshotKey,
           width: phoneSize.width,
           height: phoneSize.height,
-          child: const HomeScreen(),
+          child: AttendanceStoreScope(
+            store: store,
+            child: ProScope(
+              service: pro,
+              child: AppUpdateScope(
+                service: updates,
+                child: const HomeScreen(),
+              ),
+            ),
+          ),
         ),
       ),
     );

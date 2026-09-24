@@ -1,7 +1,7 @@
 name: attendance_flow
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.3+4
+version: 1.2.6+12
 
 environment:
   sdk: ^3.6.0
@@ -12,6 +12,13 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_launcher_icons: ^0.14.4
   shared_preferences: ^2.5.3
+  in_app_purchase: ^3.3.0
+  in_app_purchase_android: ^0.5.3
+  share_plus: ^10.1.4
+  file_picker: ^8.3.7
+  path_provider: ^2.1.5
+  in_app_update: ^5.0.0
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

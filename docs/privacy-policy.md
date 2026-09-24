@@ -1,6 +1,6 @@
 # Privacy Policy for Attendance Flow
 
-**Last updated:** July 26, 2026
+**Last updated:** September 24, 2026
 
 SuperJump Dev ("we", "us", or "our") operates the **Attendance Flow** mobile application (the "App").
 
@@ -22,8 +22,10 @@ This Privacy Policy explains how information is handled when you use the App. We
 
 When you use Attendance Flow, the App stores the following information **on your device**:
 
-- Dates you mark as present on the calendar
+- Dates you mark on the calendar (present and, if you unlock Pro, other statuses)
+- Named calendars you create
 - Your selected start month (if set)
+- Whether Pro is unlocked on this device
 - App preferences needed to restore your attendance history
 
 This data is saved using your device's local storage (SharedPreferences / on-device storage). It is **not transmitted to us** or to any server we operate.
@@ -39,7 +41,7 @@ Attendance Flow does **not** collect, store, or process on our systems:
 - Contacts or photos
 - Device identifiers for tracking
 - Usage analytics
-- Payment or financial information
+- Payment or financial information (Google processes Play purchases; we never receive card details or attendance records)
 
 Because we do not receive your data, we also do not create user profiles or share personal information with third parties for marketing purposes.
 
@@ -47,11 +49,15 @@ Because we do not receive your data, we also do not create user profiles or shar
 
 ## Internet and Third-Party Services
 
-The App is designed to work **offline**. It does not require an internet connection for core features.
+The App is designed to work **offline**. It does not require an internet connection for core calendar features.
+
+Optional **Pro** is a **monthly subscription** sold through **Google Play Billing**. Google processes that payment according to [Google's Privacy Policy](https://policies.google.com/privacy). We do not receive your payment details, and attendance records still do not leave your device through the App. You can cancel anytime in Google Play → Payments & subscriptions → Subscriptions.
+
+If you export a CSV or share a backup file, you choose where that file goes (for example another app on your phone). That share is not uploaded to us.
 
 We do not integrate third-party analytics, advertising networks, or social login providers in the App.
 
-If you download the App from **Google Play**, Google may collect information according to its own policies when you use the store or when the device communicates with Google services (for example, for app updates or Play Protect). That processing is governed by [Google's Privacy Policy](https://policies.google.com/privacy).
+If you download the App from **Google Play**, Google may collect information according to its own policies when you use the store or when the device communicates with Google services (for example, for app updates, Play Protect, in-app purchase, or when the App checks Play for a newer version). That processing is governed by [Google's Privacy Policy](https://policies.google.com/privacy).
 
 ---
 

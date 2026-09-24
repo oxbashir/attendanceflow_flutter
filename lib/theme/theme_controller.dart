@@ -18,12 +18,22 @@ class ThemeController extends ChangeNotifier {
   }
 
   Future<void> toggle(Brightness current) async {
-    mode = current == Brightness.dark ? ThemeMode.light : ThemeMode.dark;
+    await setMode(
+      current == Brightness.dark ? ThemeMode.light : ThemeMode.dark,
+    );
+  }
+
+  Future<void> setMode(ThemeMode next) async {
+    mode = next;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _prefsKey,
-      mode == ThemeMode.dark ? 'dark' : 'light',
+      switch (mode) {
+        ThemeMode.dark => 'dark',
+        ThemeMode.light => 'light',
+        ThemeMode.system => 'system',
+      },
     );
   }
 }

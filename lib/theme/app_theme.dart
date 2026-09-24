@@ -8,6 +8,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.accent,
     required this.accentSoft,
     required this.success,
+    required this.warning,
+    required this.danger,
+    required this.halfDay,
     required this.textHigh,
     required this.textMid,
     required this.textLow,
@@ -21,6 +24,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color accent;
   final Color accentSoft;
   final Color success;
+  final Color warning;
+  final Color danger;
+  final Color halfDay;
   final Color textHigh;
   final Color textMid;
   final Color textLow;
@@ -28,31 +34,37 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color shadow;
 
   static const light = AppPalette(
-    bg: Color(0xFFF8F7F4),
+    bg: Color(0xFFF3F1EC),
     surface: Color(0xFFFFFFFF),
-    surfaceAlt: Color(0xFFF0EEE9),
+    surfaceAlt: Color(0xFFE7E4DC),
     accent: Color(0xFF4F7EFF),
-    accentSoft: Color(0xFFEBF0FF),
-    success: Color(0xFF34C47C),
+    accentSoft: Color(0xFFDCE6FF),
+    success: Color(0xFF2FB56F),
+    warning: Color(0xFFE8A017),
+    danger: Color(0xFFE25B4C),
+    halfDay: Color(0xFF7C6AF7),
     textHigh: Color(0xFF1A1A2E),
-    textMid: Color(0xFF6B6B80),
-    textLow: Color(0xFFB0AEBF),
-    border: Color(0xFFE8E6E1),
-    shadow: Color(0x0D000000),
+    textMid: Color(0xFF5C5C72),
+    textLow: Color(0xFF8A8899),
+    border: Color(0xFFC9C4B8),
+    shadow: Color(0x14000000),
   );
 
   static const dark = AppPalette(
-    bg: Color(0xFF0C0E14),
-    surface: Color(0xFF151821),
-    surfaceAlt: Color(0xFF1C2030),
-    accent: Color(0xFF6B93FF),
-    accentSoft: Color(0xFF1A2340),
+    bg: Color(0xFF080A10),
+    surface: Color(0xFF1A1F2E),
+    surfaceAlt: Color(0xFF2A3144),
+    accent: Color(0xFF7AA0FF),
+    accentSoft: Color(0xFF2A3A62),
     success: Color(0xFF3DDB8F),
-    textHigh: Color(0xFFF4F3EE),
-    textMid: Color(0xFF9A9CB0),
-    textLow: Color(0xFF5C5F73),
-    border: Color(0xFF2A2E3C),
-    shadow: Color(0x59000000),
+    warning: Color(0xFFFFC14D),
+    danger: Color(0xFFFF7A6E),
+    halfDay: Color(0xFF9B8CFF),
+    textHigh: Color(0xFFF6F5F0),
+    textMid: Color(0xFFB4B7C8),
+    textLow: Color(0xFF8E93A6),
+    border: Color(0xFF4E566C),
+    shadow: Color(0x99000000),
   );
 
   static AppPalette of(BuildContext context) {
@@ -67,6 +79,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? accent,
     Color? accentSoft,
     Color? success,
+    Color? warning,
+    Color? danger,
+    Color? halfDay,
     Color? textHigh,
     Color? textMid,
     Color? textLow,
@@ -80,6 +95,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
       accent: accent ?? this.accent,
       accentSoft: accentSoft ?? this.accentSoft,
       success: success ?? this.success,
+      warning: warning ?? this.warning,
+      danger: danger ?? this.danger,
+      halfDay: halfDay ?? this.halfDay,
       textHigh: textHigh ?? this.textHigh,
       textMid: textMid ?? this.textMid,
       textLow: textLow ?? this.textLow,
@@ -98,6 +116,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
       accent: Color.lerp(accent, other.accent, t)!,
       accentSoft: Color.lerp(accentSoft, other.accentSoft, t)!,
       success: Color.lerp(success, other.success, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      danger: Color.lerp(danger, other.danger, t)!,
+      halfDay: Color.lerp(halfDay, other.halfDay, t)!,
       textHigh: Color.lerp(textHigh, other.textHigh, t)!,
       textMid: Color.lerp(textMid, other.textMid, t)!,
       textLow: Color.lerp(textLow, other.textLow, t)!,
